@@ -111,7 +111,13 @@ class InvokerBytecodeGenerator {
         if (DUMP_CLASS_FILES) {
             className = makeDumpableClassName(className);
         }
-        this.className  = className;
+        int uniqueID = lambdaForm.toString().hashCode()
+            ^ className.hashCode()
+            ^ invokerName.hashCode()
+            ^ invokerType.toString().hashCode();
+        uniqueID &= 0x7fffffff;
+        this.className = className + "$" + uniqueID;
+        // this.className = className;
         this.lambdaForm = lambdaForm;
         this.invokerName = invokerName;
         this.invokerType = invokerType;

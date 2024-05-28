@@ -163,7 +163,16 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         implMethodName = implInfo.getName();
         implMethodDesc = implInfo.getMethodType().toMethodDescriptorString();
         constructorType = invokedType.changeReturnType(Void.TYPE);
-        lambdaClassName = targetClass.getName().replace('.', '/') + "$$Lambda$" + counter.incrementAndGet();
+        int uniqueID =  targetClass.getName().hashCode()
+                        ^ invokedType.toString().hashCode()
+                        ^ samMethodName.hashCode()
+                        ^ samMethodType.toString().hashCode()
+                        ^ instantiatedMethodType.toString().hashCode()
+                        ^ implMethodClassName.hashCode()
+                        ^ implMethodName.hashCode()
+                        ^ implMethodDesc.hashCode();
+        uniqueID &= 0x7fffffff;
+        lambdaClassName = targetClass.getName().replace('.', '/') + "$$Lambda$" + uniqueID;
         cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         int parameterCount = invokedType.parameterCount();
         if (parameterCount > 0) {
@@ -252,6 +261,10 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
      * is not found
      */
     private Class<?> spinInnerClass() throws LambdaConversionException {
+        Class<?> innerClass = MethodHandleNatives.findLambdaInSCC(lambdaClassName, targetClass);
+        if (innerClass != null) {
+            return innerClass;
+        }
         String[] interfaces;
         String samIntf = samBase.getName().replace('.', '/');
         boolean accidentallySerializable = !isSerializable && Serializable.class.isAssignableFrom(samBase);

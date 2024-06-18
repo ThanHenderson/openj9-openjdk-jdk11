@@ -73,6 +73,7 @@ import static java.lang.invoke.MethodHandleStatics.newInternalError;
 /*non-public*/ final class ResolvedMethodName {
     //@Injected JVM_Method* vmtarget;
     //@Injected Class<?>    vmholder;
+    //@Injected intptr_t    vmindex;   // vtable index or offset of resolved member
 };
 
 /*non-public*/ final class MemberName implements Member, Cloneable {
@@ -81,7 +82,6 @@ import static java.lang.invoke.MethodHandleStatics.newInternalError;
     private Object   type;        // may be null if not yet materialized
     private int      flags;       // modifier bits; see reflect.Modifier
     private ResolvedMethodName method;    // cached resolved method information
-    //@Injected intptr_t       vmindex;   // vtable index or offset of resolved member
     Object   resolution;  // if null, this guy is resolved
 
     /** Return the declaring class of this member.
